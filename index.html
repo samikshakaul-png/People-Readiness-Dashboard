@@ -1,1366 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>People Readiness Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --color-bg: #f7f9fc;
-      --color-surface: #ffffff;
-      --color-surface-muted: #eef3f8;
-      --color-text: #162033;
-      --color-text-muted: #5f6f89;
-      --color-border: #d9e2ec;
-      --color-brand: #ff007f;
-      --color-brand-dark: #c7005f;
-      --color-brand-soft: #ffd6ec;
-      --color-success: #16845b;
-      --color-warning: #b56a00;
-      --color-danger: #c33737;
-      --color-shadow: rgba(22, 32, 51, 0.08);
-      --space-1: 0.25rem;
-      --space-2: 0.5rem;
-      --space-3: 0.75rem;
-      --space-4: 1rem;
-      --space-5: 1.25rem;
-      --space-6: 1.5rem;
-      --space-8: 2rem;
-      --space-10: 2.5rem;
-      --radius-sm: 6px;
-      --radius-md: 8px;
-      --radius-lg: 12px;
-      --shadow-sm: 0 1px 2px var(--color-shadow);
-      --shadow-md: 0 12px 30px rgba(22, 32, 51, 0.1);
-      --container-max: 1440px;
-      --header-height: 72px;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--color-text);
-      background: var(--color-bg);
-      font-family: var(--font-sans);
-      line-height: 1.5;
-    }
-
-    button, input, select, textarea { font: inherit; }
-    a { color: inherit; text-decoration: none; }
-
-    .tab-shell {
-      width: min(100%, var(--container-max));
-      margin: 0 auto;
-      padding: 0 var(--space-6) var(--space-8);
-    }
-
-    .tab-nav {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      display: flex;
-      gap: var(--space-5);
-      padding: var(--space-4) 0 var(--space-3);
-      margin-bottom: var(--space-5);
-      background: var(--color-bg);
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .tab-btn {
-      padding: 0.45rem 0.2rem;
-      border: 0;
-      border-bottom: 4px solid transparent;
-      color: var(--color-text-muted);
-      background: transparent;
-      font-size: 1.05rem;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      transition: color 0.2s ease, border-color 0.2s ease;
-    }
-
-    .tab-btn.active {
-      color: var(--color-brand);
-      border-bottom-color: var(--color-brand);
-    }
-
-    .page-panel {
-      display: none;
-      padding: var(--space-6);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      background: var(--color-surface);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .page-panel.active {
-      display: block;
-    }
-
-    .card-grid {
-      display: grid;
-      gap: var(--space-4);
-      margin-top: var(--space-4);
-    }
-
-    .dashboard-card-row {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(320px, 1fr));
-      grid-auto-rows: auto;
-      gap: var(--space-4);
-      margin-top: var(--space-4);
-      margin-bottom: var(--space-5);
-      align-items: stretch;
-      justify-items: center;
-    }
-
-    .dashboard-card-row > .status-card {
-      align-self: stretch;
-      height: 100%;
-      width: 100%;
-      max-width: 720px;
-    }
-
-    .dashboard-card-row > .status-card.full-width {
-      grid-column: 1 / -1;
-      width: min(100%, 720px);
-      justify-self: center;
-    }
-
-    .status-card {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      gap: var(--space-2);
-      border-radius: var(--radius-lg);
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 30px rgba(255, 0, 127, 0.08);
-      padding: var(--space-3);
-      margin-bottom: 0;
-      min-height: 100%;
-    }
-
-    .dashboard-card-row > .status-card {
-      min-width: 0;
-    }
-
-    .status-card + .status-card {
-      margin-top: 0;
-    }
-
-    .status-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-2);
-      flex-wrap: wrap;
-      margin-bottom: var(--space-1);
-    }
-
-    .status-card-title {
-      margin: 0;
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--color-text);
-    }
-
-    .status-card-subtitle {
-      margin: 0;
-      color: #6b7280;
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .status-card-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(200px, 1fr) minmax(145px, auto);
-      gap: var(--space-2);
-      align-items: center;
-      padding: var(--space-2) 0;
-      border-top: 1px solid #f3f4f6;
-    }
-
-    .status-card-row:first-child {
-      border-top: none;
-    }
-
-    .status-card-label {
-      color: var(--color-text);
-      font-weight: 700;
-      font-size: 1rem;
-      line-height: 1.4;
-    }
-
-    .status-card-meta {
-      color: #6b7280;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .status-card-values {
-      display: grid;
-      gap: var(--space-2);
-      justify-items: end;
-      text-align: right;
-    }
-
-    .status-card-target,
-    .status-card-actual {
-      color: var(--color-text);
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 30px;
-      padding: 0 var(--space-4);
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      border: 1px solid transparent;
-    }
-
-    .status-pill.success {
-      color: #166534;
-      background: #dcfce7;
-      border-color: #bbf7d0;
-    }
-
-    .status-pill.warning {
-      color: #92400e;
-      background: #fef3c7;
-      border-color: #fde68a;
-    }
-
-    .status-pill.danger {
-      color: #991b1b;
-      background: #fee2e2;
-      border-color: #fecaca;
-    }
-
-    .status-bar {
-      width: 100%;
-      height: 10px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      overflow: hidden;
-      margin-top: var(--space-2);
-    }
-
-    .status-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-    }
-
-    .status-bar-fill.success {
-      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
-    }
-
-    .status-bar-fill.warning {
-      background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
-    }
-
-    .status-bar-fill.danger {
-      background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
-    }
-
-    .row-status-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.25rem 0.7rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .row-status-pill.success {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .row-status-pill.warning {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .row-status-pill.danger {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .scorecard {
-      display: grid;
-      gap: var(--space-4);
-      padding: var(--space-5);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .scorecard h3 {
-      margin: 0;
-      color: var(--color-brand);
-      font-size: 1.1rem;
-    }
-
-    .scorecard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: var(--space-3);
-    }
-
-    .score-item {
-      padding: var(--space-3);
-      border-radius: var(--radius-sm);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-    }
-
-    .score-label {
-      display: block;
-      color: var(--color-text-muted);
-      font-size: 0.8rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .score-value {
-      display: block;
-      margin-top: 0.25rem;
-      color: var(--color-text);
-      font-size: 1rem;
-      font-weight: 800;
-    }
-
-    .app-shell { min-height: 100vh; }
-
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      height: var(--header-height);
-      border-bottom: 1px solid var(--color-border);
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-6);
-      width: min(100%, var(--container-max));
-      height: 100%;
-      margin: 0 auto;
-      padding: 0 var(--space-6);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      min-width: 0;
-    }
-
-    .brand-mark {
-      display: grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
-      color: #ffffff;
-      background: var(--color-brand);
-      font-weight: 800;
-      letter-spacing: 0;
-    }
-
-    .brand-copy { min-width: 0; }
-
-    .eyebrow {
-      margin: 0;
-      color: var(--color-text-muted);
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .brand-title {
-      margin: 0;
-      overflow: hidden;
-      font-size: 1.1rem;
-      font-weight: 800;
-      line-height: 1.2;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      flex: 0 0 auto;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      min-height: 36px;
-      padding: 0 var(--space-4);
-      border: 1px solid var(--color-border);
-      border-radius: 999px;
-      color: var(--color-text-muted);
-      background: var(--color-surface);
-      font-size: 0.88rem;
-      font-weight: 700;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--color-success);
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      min-height: 40px;
-      padding: 0 var(--space-5);
-      border: 1px solid transparent;
-      border-radius: var(--radius-md);
-      color: #ffffff;
-      background: var(--color-brand);
-      font-weight: 800;
-      cursor: default;
-    }
-
-    .button svg {
-      width: 17px;
-      height: 17px;
-      stroke: currentColor;
-      stroke-width: 2;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .icon-chip {
-      display: inline-grid;
-      flex: 0 0 auto;
-      place-items: center;
-      width: 34px;
-      height: 34px;
-      border-radius: var(--radius-md);
-      color: var(--color-brand);
-      background: var(--color-brand-soft);
-      font-size: 1rem;
-    }
-
-    .panel-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      min-width: 0;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      min-height: 26px;
-      padding: 0 var(--space-3);
-      border-radius: 999px;
-      color: var(--color-text-muted);
-      background: var(--color-surface-muted);
-      font-size: 0.76rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-
-    .badge-success {
-      color: var(--color-success);
-      background: #e7f6ef;
-    }
-
-    .badge-warning {
-      color: var(--color-warning);
-      background: #fff3dc;
-    }
-
-    .badge-danger {
-      color: var(--color-danger);
-      background: #fdeaea;
-    }
-
-    .badge-brand {
-      color: var(--color-brand);
-      background: var(--color-brand-soft);
-    }
-
-    .signal-dot {
-      display: inline-block;
-      flex: 0 0 auto;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7);
-    }
-
-    .dot-success { color: var(--color-success); }
-    .dot-warning { color: var(--color-warning); }
-    .dot-danger { color: var(--color-danger); }
-    .dot-brand { color: var(--color-brand); }
-
-    .page {
-      width: min(100%, var(--container-max));
-      margin: 0 auto;
-      padding: var(--space-8) var(--space-6) var(--space-10);
-    }
-
-    .hero {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-      align-items: center;
-      gap: var(--space-8);
-      min-height: 360px;
-      margin-bottom: var(--space-8);
-      padding: var(--space-10);
-      overflow: hidden;
-      border-radius: var(--radius-lg);
-      color: #ffffff;
-      background:
-        radial-gradient(circle at 12% 15%, rgba(255, 0, 127, 0.25), transparent 32%),
-        radial-gradient(circle at 88% 12%, rgba(255, 0, 127, 0.18), transparent 30%),
-        linear-gradient(135deg, #ff007f 0%, #ff007f 100%);
-      box-shadow: var(--shadow-md);
-    }
-
-    .hero::before,
-    .hero::after {
-      position: absolute;
-      content: "";
-      pointer-events: none;
-    }
-
-    .hero::before {
-      inset: 22px auto auto 46%;
-      width: 280px;
-      height: 280px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 42% 58% 47% 53%;
-      transform: rotate(18deg);
-    }
-
-    .hero::after {
-      right: -88px;
-      bottom: -120px;
-      width: 340px;
-      height: 340px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .hero-content,
-    .hero-tiles {
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero .eyebrow {
-      color: rgba(255, 255, 255, 0.72);
-    }
-
-    .hero-title {
-      max-width: 720px;
-      margin: var(--space-3) 0 0;
-      font-size: clamp(2.25rem, 5vw, 4.7rem);
-      line-height: 0.98;
-      letter-spacing: 0;
-    }
-
-    .hero-subtext {
-      max-width: 640px;
-      margin: var(--space-5) 0 0;
-      color: rgba(255, 255, 255, 0.78);
-      font-size: 1.08rem;
-      font-weight: 500;
-    }
-
-    .hero-tiles {
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .glass-tile {
-      padding: var(--space-5);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.11);
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.18);
-      backdrop-filter: blur(14px);
-    }
-
-    .glass-tile-label {
-      display: block;
-      color: rgba(255, 255, 255, 0.66);
-      font-size: 0.78rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .glass-tile-title {
-      display: block;
-      margin-top: var(--space-2);
-      color: #ffffff;
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-
-    .glass-tile-copy {
-      margin: var(--space-2) 0 0;
-      color: rgba(255, 255, 255, 0.72);
-      font-size: 0.92rem;
-    }
-
-    .glass-tile-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-3);
-      margin-bottom: var(--space-2);
-    }
-
-    .glass-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-2);
-      min-height: 24px;
-      padding: 0 var(--space-3);
-      border-radius: 999px;
-      color: rgba(255, 255, 255, 0.82);
-      background: rgba(255, 255, 255, 0.12);
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: var(--space-5);
-    }
-
-    .panel {
-      min-height: 180px;
-      padding: var(--space-5);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      background: var(--color-surface);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .panel-large { grid-column: span 8; min-height: 320px; }
-    .panel-medium { grid-column: span 6; }
-    .panel-small { grid-column: span 4; }
-    .panel-full { grid-column: 1 / -1; }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-4);
-      margin-bottom: var(--space-5);
-    }
-
-    .panel-title {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 800;
-    }
-
-    .panel-category {
-      display: block;
-      margin-top: 2px;
-      color: var(--color-text-muted);
-      font-size: 0.76rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .panel-label {
-      color: var(--color-text-muted);
-      font-size: 0.82rem;
-      font-weight: 700;
-    }
-
-    .empty-state {
-      display: grid;
-      justify-items: center;
-      align-content: center;
-      gap: var(--space-3);
-      min-height: 150px;
-      padding: var(--space-5);
-      border: 1px dashed var(--color-border);
-      border-radius: var(--radius-md);
-      color: var(--color-text-muted);
-      background: var(--color-surface-muted);
-      text-align: center;
-    }
-
-    .empty-state-icon {
-      display: grid;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      color: var(--color-brand);
-      background: var(--color-brand-soft);
-      font-size: 1.25rem;
-    }
-
-    .empty-state-title {
-      margin: 0;
-      color: var(--color-text);
-      font-size: 1rem;
-      font-weight: 800;
-    }
-
-    .empty-state-copy {
-      max-width: 360px;
-      margin: 0;
-      color: var(--color-text-muted);
-      font-size: 0.92rem;
-      font-weight: 600;
-    }
-
-    .empty-state-action {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      min-height: 38px;
-      margin-top: var(--space-1);
-      padding: 0 var(--space-4);
-      border: 0;
-      border-radius: var(--radius-md);
-      color: #ffffff;
-      background: var(--color-brand);
-      font-weight: 800;
-      cursor: default;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .empty-state-action svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-      stroke-width: 2;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: var(--space-2);
-      max-width: 420px;
-      margin-top: var(--space-1);
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 0 var(--space-3);
-      border-radius: 999px;
-      color: var(--color-text-muted);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      font-size: 0.76rem;
-      font-weight: 800;
-    }
-
-    @media (max-width: 900px) {
-      .header-inner { padding: 0 var(--space-4); }
-      .button, .status-pill { display: none; }
-      .page { padding: var(--space-6) var(--space-4) var(--space-8); }
-      .hero { grid-template-columns: 1fr; padding: var(--space-8); }
-      .hero-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .panel-large, .panel-medium, .panel-small { grid-column: 1 / -1; }
-    }
-
-    @media (max-width: 560px) {
-      :root { --header-height: 64px; }
-      .brand-mark { width: 36px; height: 36px; }
-      .eyebrow { display: none; }
-      .brand-title { font-size: 0.98rem; }
-      .hero { padding: var(--space-6); }
-      .hero-tiles { grid-template-columns: 1fr; }
-      .hero-subtext br { display: none; }
-      .dashboard-grid { gap: var(--space-4); }
-      .panel { padding: var(--space-4); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Change Consulting Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
 </head>
+
 <body>
-  <div class="tab-shell">
-    <nav class="tab-nav" aria-label="Primary tabs">
-      <button class="tab-btn active" type="button" data-page="page-a" onclick="showPage('page-a')">SOA</button>
-      <button class="tab-btn" type="button" data-page="page-b" onclick="showPage('page-b')">LATAM</button>
-      <button class="tab-btn" type="button" data-page="page-c" onclick="showPage('page-c')">SEU</button>
-      <button class="tab-btn" type="button" data-page="page-d" onclick="showPage('page-d')">WEU</button>
-      <button class="tab-btn" type="button" data-page="page-e" onclick="showPage('page-e')">ANZ</button>
-    </nav>
 
-    <div id="page-a" class="page-panel active">
-      <h2>Finance Transformation - SoA</h2>
-      <div class="card-grid">
-        <div class="scorecard">
-          <h3>Readiness Scorecard</h3>
-          <div class="scorecard-grid">
-              <div class="score-item"><span class="score-label">Overall Readiness</span><span class="score-value">83%</span></div>
-            <div class="score-item"><span class="score-label">Sentiment</span><span class="score-value">😊 4.2/5</span></div>
-            <div class="score-item"><span class="score-label">KT Effectiveness</span><span class="score-value">91%</span></div>
-            <div class="score-item"><span class="score-label">WTS Effectiveness</span><span class="score-value">88%</span></div>
-            <div class="score-item"><span class="score-label">Leaders' Readiness</span><span class="score-value">86%</span></div>
-            <div class="score-item"><span class="score-label">Team Readiness</span><span class="score-value">79%</span></div>
-            <div class="score-item"><span class="score-label">High Risk Areas</span><span class="score-value">4</span></div>
-          </div>
-        </div>
-      </div>
+    <div id="studioHome">
+
+        <header class="main-header">
+            <div class="logo">
+                <h2>IBM Change Consulting Studio</h2>
+            </div>
+
+            <nav>
+                <a href="#experiences">Experiences</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-content">
+                <p class="hero-tag">Interactive Consulting Platform</p>
+
+                <h1>Designing Transformation Experiences</h1>
+
+                <p class="hero-text">
+                    Explore interactive consulting experiences that help executive leaders
+                    discover, shape, mobilise and sustain successful transformations.
+                </p>
+
+                <p class="hero-text secondary">
+                    We don't present our change methodology, we demonstrate what we do.
+                </p>
+
+                <button id="exploreBtn">Explore Experiences</button>
+            </div>
+        </section>
+
+        <section class="experience-library" id="experiences">
+            <h2>Consulting Experiences</h2>
+
+            <p class="section-intro">Select an experience to explore.</p>
+
+            <div class="experience-grid">
+
+                <div class="experience-card" id="launchDiscovery">
+                    <div class="experience-icon">🌍</div>
+                    <h3>Discovery Experience</h3>
+                    <p>
+                        Discover the transformation context and build a Transformation Blueprint.
+                    </p>
+                    <span class="card-link">Explore →</span>
+                </div>
+
+                <div class="experience-card">
+                    <div class="experience-icon">🧭</div>
+                    <h3>Transformation Blueprint</h3>
+                    <p>
+                        Create a one-page executive blueprint from strategy through adoption.
+                    </p>
+                    <span class="card-link">Explore →</span>
+                </div>
+
+                <div class="experience-card">
+                    <div class="experience-icon">🚀</div>
+                    <h3>90-Day Mobilisation Planner</h3>
+                    <p>
+                        Shape the first 90 days based on your programme context.
+                    </p>
+                    <span class="card-link">Explore →</span>
+                </div>
+
+                <div class="experience-card">
+                    <div class="experience-icon">🎯</div>
+                    <h3>Executive Decision Canvas</h3>
+                    <p>
+                        Facilitate executive conversations around the strategic decisions that
+                        define transformation success.
+                    </p>
+                    <span class="card-link">Explore →</span>
+                </div>
+
+                <div class="experience-card">
+                    <div class="experience-icon">📊</div>
+                    <h3>Change Readiness Navigator</h3>
+                    <p>
+                        Understand organisational readiness across leadership, stakeholders
+                        and adoption.
+                    </p>
+                    <span class="card-link">Explore →</span>
+                </div>
+
+                <div class="experience-card">
+                    <div class="experience-icon">🌱</div>
+                    <h3>Business Adoption Planner</h3>
+                    <p>
+                        Build adoption strategies that sustain change beyond deployment.
+                    </p>
+                    <span class="card-link">Explore →</span>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="why-section" id="about">
+            <h2>Why Change Consulting Studio? </h2>
+
+            <div class="why-grid">
+                <div class="why-card">
+                    <h3>Discover</h3>
+                    <p>
+                        Create meaningful executive conversations rather than completing
+                        assessments.
+                    </p>
+                </div>
+
+                <div class="why-card">
+                    <h3>Visualise</h3>
+                    <p>
+                        Build shared understanding through live Transformation Blueprints.
+                    </p>
+                </div>
+
+                <div class="why-card">
+                    <h3>Accelerate</h3>
+                    <p>
+                        Demonstrate consulting thinking and shape the first 90 days with
+                        confidence.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer id="contact">
+            <h3>The Change Consulting Studio</h3>
+            <p>Designing transformation experiences that people adopt.</p>
+        </footer>
+
     </div>
 
-    <div id="page-b" class="page-panel">
-      <h2>Finance Transformation - LATAM</h2>
-      <div class="card-grid">
-        <div class="scorecard">
-          <h3>Readiness Scorecard</h3>
-          <div class="scorecard-grid">
-            <div class="score-item"><span class="score-label">Overall Readiness</span><span class="score-value">83%</span></div>
-            <div class="score-item"><span class="score-label">Sentiment</span><span class="score-value">😊 4.2/5</span></div>
-            <div class="score-item"><span class="score-label">KT Effectiveness</span><span class="score-value">91%</span></div>
-            <div class="score-item"><span class="score-label">WTS Effectiveness</span><span class="score-value">88%</span></div>
-            <div class="score-item"><span class="score-label">Leaders' Readiness</span><span class="score-value">86%</span></div>
-            <div class="score-item"><span class="score-label">Team Readiness</span><span class="score-value">79%</span></div>
-            <div class="score-item"><span class="score-label">High Risk Areas</span><span class="score-value">4</span></div>
-          </div>
+    <section class="app-shell" id="appShell">
+
+        <div class="app-header">
+            <div class="header-left">
+                <button class="back-btn" id="backBtn">← Back</button>
+
+                <div>
+                    <h2>Transformation Discovery Experience</h2>
+                    <p class="transformation-type">Discovery conversation and blueprint builder</p>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="experience-time">⏱ 7 Minutes</div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <div id="page-c" class="page-panel">
-      <h2>Finance Transformation - SEU</h2>
-      <div class="card-grid">
-        <div class="scorecard">
-          <h3>Readiness Scorecard</h3>
-          <div class="scorecard-grid">
-            <div class="score-item"><span class="score-label">Overall Readiness</span><span class="score-value">83%</span></div>
-            <div class="score-item"><span class="score-label">Sentiment</span><span class="score-value">😊 4.2/5</span></div>
-            <div class="score-item"><span class="score-label">KT Effectiveness</span><span class="score-value">91%</span></div>
-            <div class="score-item"><span class="score-label">WTS Effectiveness</span><span class="score-value">88%</span></div>
-            <div class="score-item"><span class="score-label">Leaders' Readiness</span><span class="score-value">86%</span></div>
-            <div class="score-item"><span class="score-label">Team Readiness</span><span class="score-value">79%</span></div>
-            <div class="score-item"><span class="score-label">High Risk Areas</span><span class="score-value">4</span></div>
-          </div>
+        <div class="journey-stepper">
+            <div class="step active">
+                <div class="circle">1</div>
+                <span>Discover</span>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="step">
+                <div class="circle">2</div>
+                <span>Understand</span>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="step">
+                <div class="circle">3</div>
+                <span>Shape</span>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="step">
+                <div class="circle">4</div>
+                <span>Blueprint</span>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <div id="page-d" class="page-panel">
-      <h2>Finance Transformation - WEU</h2>
-      <div class="card-grid">
-        <div class="scorecard">
-          <h3>Readiness Scorecard</h3>
-          <div class="scorecard-grid">
-            <div class="score-item"><span class="score-label">Overall Readiness</span><span class="score-value">83%</span></div>
-            <div class="score-item"><span class="score-label">Sentiment</span><span class="score-value">😊 4.2/5</span></div>
-            <div class="score-item"><span class="score-label">KT Effectiveness</span><span class="score-value">91%</span></div>
-            <div class="score-item"><span class="score-label">WTS Effectiveness</span><span class="score-value">88%</span></div>
-            <div class="score-item"><span class="score-label">Leaders' Readiness</span><span class="score-value">86%</span></div>
-            <div class="score-item"><span class="score-label">Team Readiness</span><span class="score-value">79%</span></div>
-            <div class="score-item"><span class="score-label">High Risk Areas</span><span class="score-value">4</span></div>
-          </div>
+        <div class="workspace">
+
+            <div class="left-panel">
+                <div class="conversation-container">
+                    <span class="conversation-number">Executive Conversation 1</span>
+
+                    <h2>What transformation are you leading?</h2>
+
+                    <p>
+                        The conversation will appear here. Use this space for questions,
+                        options and executive prompts.
+                    </p>
+
+                    <div class="conversation-status">
+                        <h4>Status</h4>
+                        <p>Ready to begin discovery.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <h3>Building Your Blueprint</h3>
+
+                <p class="blueprint-intro">
+                    Every conversation contributes to a shared view of your transformation.
+                </p>
+
+                <div class="blueprint-item">
+                    <span class="blueprint-title">Transformation</span>
+                    <div class="tag">Awaiting Selection</div>
+                </div>
+
+                <div class="blueprint-item">
+                    <span class="blueprint-title">Today's Focus</span>
+                    <div class="tag">Awaiting Selection</div>
+                </div>
+
+                <div class="blueprint-item">
+                    <span class="blueprint-title">Transformation Play</span>
+                    <div class="tag">Awaiting Selection</div>
+                </div>
+
+                <div class="blueprint-item">
+                    <span class="blueprint-title">90-Day Priorities</span>
+                    <div class="tag">Awaiting Selection</div>
+                </div>
+
+                <div class="insight-box">
+                    <h4>Our Initial Hypothesis</h4>
+
+                    <p>
+                        As we progress through today's conversation, our consulting
+                        perspective will begin to emerge here.
+                    </p>
+                </div>
+            </div>
+
         </div>
-      </div>
-    </div>
 
-    <div id="page-e" class="page-panel">
-      <h2>Finance Transformation - ANZ</h2>
-      <div class="card-grid">
-        <div class="scorecard">
-          <h3>Readiness Scorecard</h3>
-          <div class="scorecard-grid">
-            <div class="score-item"><span class="score-label">Overall Readiness</span><span class="score-value">83%</span></div>
-            <div class="score-item"><span class="score-label">Sentiment</span><span class="score-value">😊 4.2/5</span></div>
-            <div class="score-item"><span class="score-label">KT Effectiveness</span><span class="score-value">91%</span></div>
-            <div class="score-item"><span class="score-label">WTS Effectiveness</span><span class="score-value">88%</span></div>
-            <div class="score-item"><span class="score-label">Leaders' Readiness</span><span class="score-value">86%</span></div>
-            <div class="score-item"><span class="score-label">Team Readiness</span><span class="score-value">79%</span></div>
-            <div class="score-item"><span class="score-label">High Risk Areas</span><span class="score-value">4</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <div class="app-shell">
-    <header class="app-header">
-      <div class="header-inner">
-        <a class="brand" href="#" aria-label="People Readiness Dashboard home">
-          <span class="brand-mark" aria-hidden="true">CB</span>
-          <span class="brand-copy">
-            <span class="eyebrow">Change Enablement</span>
-            <span class="brand-title">- People Readiness Dashboard</span>
-          </span>
-        </a>
-        <div class="header-actions" aria-label="Dashboard status">
-          <span class="status-pill"><span class="status-dot" aria-hidden="true"></span>Shell ready</span>
-          <span class="button" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>No logic yet</span>
-        </div>
-      </div>
-    </header>
-
-    <main class="page">
-      <section class="hero" aria-labelledby="page-title">
-        <div class="hero-content">
-          <p class="eyebrow">Region readiness view</p>
-          <h1 class="hero-title" id="page-title">People Readiness Dashboard</h1>
-          <p class="hero-subtext">See where the business is ready, where support is needed, and which change activities need focus. Use this dashboard to frame readiness, stakeholder confidence, training, communications, and adoption signals.</p>
-        </div>
-        <div class="hero-tiles" id="hero-tiles" aria-label="Key readiness areas"></div>
-      </section>
-
-      <section class="dashboard-card-row" id="dashboard-cards" aria-label="Summary status cards"></section>
-      <section class="dashboard-grid" id="dashboard-grid" aria-label="Dashboard readiness areas"></section>
-    </main>
-  </div>
-
-  <script>
-    function showPage(pageId) {
-      document.querySelectorAll('.page-panel').forEach(function(page) {
-        page.style.display = 'none';
-        page.classList.remove('active');
-      });
-
-      document.querySelectorAll('.tab-btn').forEach(function(button) {
-        button.classList.remove('active');
-      });
-
-      const currentPage = document.getElementById(pageId);
-      const currentTab = document.querySelector('.tab-btn[data-page="' + pageId + '"]');
-
-      if (currentPage) {
-        currentPage.style.display = 'block';
-        currentPage.classList.add('active');
-      }
-
-      if (currentTab) {
-        currentTab.classList.add('active');
-      }
-
-      renderDashboardCard(pageId);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      showPage('page-a');
-    });
-
-    const dashboardItems = [];
-
-    const topCardData = {
-      'page-a': [
-        {
-          title: 'Lead the change',
-          subtitle: 'Visible sponsorship, aligned leaders, and change activation readiness',
-          status: 'Monitor',
-          tone: 'warning',
-          summary: 'Leader alignment is strong, but sponsorship cadence and narrative reach need more energy.',
-          rows: [
-            { label: 'Leader alignment', meta: 'Committed to the change', target: '90%', actual: '86%', progress: 86, tone: 'success', status: 'On track' },
-            { label: 'Sponsorship cadence', meta: 'Sessions completed', target: '6 / 8', actual: '6', progress: 75, tone: 'warning', status: 'Amber' },
-            { label: 'Change narrative reach', meta: 'Audience readiness', target: '85%', actual: '79%', progress: 79, tone: 'danger', status: 'Red' }
-          ]
-        },
-        {
-          title: 'Drive the change',
-          subtitle: 'Change impacts, onboarding and access controls are in place',
-          status: 'Needs attention',
-          tone: 'danger',
-          summary: 'Some completion metrics are strong, but access control work still needs closer attention.',
-          rows: [
-            { label: 'Change impacts', meta: 'Mitigations identified', target: '100%', actual: '100%', progress: 100, tone: 'success', status: 'On track' },
-            { label: 'Recruitment & onboarding', meta: 'GBS and COE completion', target: '>95%', actual: '88%', progress: 88, tone: 'warning', status: 'Amber' },
-            { label: 'Access controls', meta: 'Role-specific delivery', target: '100%', actual: '79%', progress: 79, tone: 'danger', status: 'Red' }
-          ]
-        },
-        {
-          title: 'Be the change',
-          subtitle: 'People readiness measures for GBS / COE',
-          status: 'Monitor',
-          tone: 'warning',
-          fullWidth: true,
-          summary: 'Awareness, training and enablement are progressing, but several people readiness measures still need reinforcement.',
-          rows: [
-            { label: 'Awareness of transformation objectives', meta: 'Sentiment survey', target: '90%', actual: '88%', progress: 88, tone: 'warning', status: 'Amber' },
-            { label: 'KT attendees passed assessment', meta: 'KT report', target: '90%', actual: '93%', progress: 93, tone: 'success', status: 'On track' },
-            { label: 'Work instructions / DTPs created', meta: 'KT report', target: '95%', actual: '96%', progress: 96, tone: 'success', status: 'On track' },
-            { label: 'Required training (WTS) completed', meta: 'WTS report', target: '85%', actual: '90%', progress: 90, tone: 'success', status: 'On track' },
-            { label: 'Training rated agree / strongly agree', meta: 'In-session polling', target: '80%', actual: '82%', progress: 82, tone: 'success', status: 'On track' }
-          ]
-        }
-      ],
-      'page-b': [
-        {
-          title: 'Lead the change',
-          subtitle: 'Sponsorship strength across LATAM leaders',
-          status: 'Needs attention',
-          tone: 'warning',
-          summary: 'Local leadership engagement is improving, but more visible commitment is required.',
-          rows: [
-            { label: 'Leader alignment', meta: 'Committed to change', target: '88%', actual: '74%', progress: 74 },
-            { label: 'Sponsorship cadence', meta: 'Sessions completed', target: '5 / 8', actual: '5', progress: 63 },
-            { label: 'Change narrative reach', meta: 'Audience readiness', target: '82%', actual: '72%', progress: 72 }
-          ]
-        },
-        {
-          title: 'Drive the change',
-          subtitle: 'LATAM change impacts and onboarding progress',
-          status: 'Monitor',
-          tone: 'warning',
-          summary: 'Stakeholder alignment is stable, but process maturity and onboarding need stronger coordination.',
-          rows: [
-            { label: 'Change impacts', meta: 'Mitigations documented', target: '100%', actual: '95%', progress: 95 },
-            { label: 'Recruitment & onboarding', meta: 'GBS and COE completion', target: '>95%', actual: '88%', progress: 88 },
-            { label: 'Access controls', meta: 'Role-specific delivery', target: '100%', actual: '94%', progress: 94 }
-          ]
-        },
-        {
-          title: 'Be the change',
-          subtitle: 'People readiness measures for LATAM',
-          status: 'Monitor',
-          tone: 'warning',
-          fullWidth: true,
-          summary: 'Awareness, training and enablement activity is improving, but several readiness measures remain in amber.',
-          rows: [
-            { label: 'Awareness of transformation objectives', meta: 'Sentiment survey', target: '90%', actual: '86%', progress: 86, tone: 'warning', status: 'Amber' },
-            { label: 'KT attendees passed assessment', meta: 'KT report', target: '90%', actual: '90%', progress: 90, tone: 'success', status: 'On track' },
-            { label: 'Work instructions / DTPs created', meta: 'KT report', target: '95%', actual: '93%', progress: 93, tone: 'warning', status: 'Amber' },
-            { label: 'Required training (WTS) completed', meta: 'WTS report', target: '85%', actual: '89%', progress: 89, tone: 'success', status: 'On track' },
-            { label: 'Training rated agree / strongly agree', meta: 'In-session polling', target: '80%', actual: '81%', progress: 81, tone: 'warning', status: 'Amber' }
-          ]
-        }
-      ],
-      'page-c': [
-        {
-          title: 'Lead the change',
-          subtitle: 'Sponsorship and alignment for SEU leaders',
-          status: 'On track',
-          tone: 'success',
-          summary: 'Leadership engagement is strong and the change story is resonating with stakeholders.',
-          rows: [
-            { label: 'Leader alignment', meta: 'Committed to change', target: '92%', actual: '89%', progress: 89 },
-            { label: 'Sponsorship cadence', meta: 'Sessions completed', target: '7 / 8', actual: '7', progress: 88 },
-            { label: 'Change narrative reach', meta: 'Audience readiness', target: '86%', actual: '81%', progress: 81 }
-          ]
-        },
-        {
-          title: 'Drive the change',
-          subtitle: 'SEU change impacts and enablement readiness',
-          status: 'On track',
-          tone: 'success',
-          summary: 'Change planning and stakeholder enablement are progressing well, with clear next steps identified.',
-          rows: [
-            { label: 'Change impacts', meta: 'Mitigations documented', target: '100%', actual: '100%', progress: 100 },
-            { label: 'Recruitment & onboarding', meta: 'GBS and COE completion', target: '>95%', actual: '92%', progress: 92 },
-            { label: 'Access controls', meta: 'Role-specific delivery', target: '100%', actual: '98%', progress: 98 }
-          ]
-        },
-        {
-          title: 'Be the change',
-          subtitle: 'People readiness measures for SEU',
-          status: 'On track',
-          tone: 'success',
-          fullWidth: true,
-          summary: 'Enablement and training are in good shape, with strong completion outcomes across SEU.',
-          rows: [
-            { label: 'Awareness of transformation objectives', meta: 'Sentiment survey', target: '90%', actual: '89%', progress: 89, tone: 'success', status: 'On track' },
-            { label: 'KT attendees passed assessment', meta: 'KT report', target: '90%', actual: '93%', progress: 93, tone: 'success', status: 'On track' },
-            { label: 'Work instructions / DTPs created', meta: 'KT report', target: '95%', actual: '96%', progress: 96, tone: 'success', status: 'On track' },
-            { label: 'Required training (WTS) completed', meta: 'WTS report', target: '85%', actual: '90%', progress: 90, tone: 'success', status: 'On track' },
-            { label: 'Training rated agree / strongly agree', meta: 'In-session polling', target: '80%', actual: '83%', progress: 83, tone: 'success', status: 'On track' }
-          ]
-        }
-      ],
-      'page-d': [
-        {
-          title: 'Lead the change',
-          subtitle: 'WEU leadership activation and sponsorship visibility',
-          status: 'At risk',
-          tone: 'danger',
-          summary: 'Sponsor visibility is delayed and requires rapid attention to avoid slowdown.',
-          rows: [
-            { label: 'Leader alignment', meta: 'Committed to change', target: '91%', actual: '71%', progress: 71 },
-            { label: 'Sponsorship cadence', meta: 'Sessions completed', target: '6 / 8', actual: '4', progress: 50 },
-            { label: 'Change narrative reach', meta: 'Audience readiness', target: '88%', actual: '76%', progress: 76 }
-          ]
-        },
-        {
-          title: 'Drive the change',
-          subtitle: 'WEU change impacts and operational readiness',
-          status: 'Needs attention',
-          tone: 'warning',
-          summary: 'Operational readiness is improving, but detailed mitigation and access controls require closer focus.',
-          rows: [
-            { label: 'Change impacts', meta: 'Mitigations documented', target: '100%', actual: '96%', progress: 96 },
-            { label: 'Recruitment & onboarding', meta: 'GBS and COE completion', target: '>95%', actual: '87%', progress: 87 },
-            { label: 'Access controls', meta: 'Role-specific delivery', target: '100%', actual: '93%', progress: 93 }
-          ]
-        },
-        {
-          title: 'Be the change',
-          subtitle: 'People readiness measures for WEU',
-          status: 'Needs attention',
-          tone: 'warning',
-          fullWidth: true,
-          summary: 'Workforce readiness is advancing, but training acceptance and documentation coverage need attention.',
-          rows: [
-            { label: 'Awareness of transformation objectives', meta: 'Sentiment survey', target: '90%', actual: '87%', progress: 87, tone: 'warning', status: 'Amber' },
-            { label: 'KT attendees passed assessment', meta: 'KT report', target: '90%', actual: '88%', progress: 88, tone: 'warning', status: 'Amber' },
-            { label: 'Work instructions / DTPs created', meta: 'KT report', target: '95%', actual: '95%', progress: 95, tone: 'success', status: 'On track' },
-            { label: 'Required training (WTS) completed', meta: 'WTS report', target: '85%', actual: '89%', progress: 89, tone: 'success', status: 'On track' },
-            { label: 'Training rated agree / strongly agree', meta: 'In-session polling', target: '80%', actual: '82%', progress: 82, tone: 'success', status: 'On track' }
-          ]
-        }
-      ],
-      'page-e': [
-        {
-          title: 'Lead the change',
-          subtitle: 'ANZ sponsorship visibility and leadership alignment',
-          status: 'Monitor',
-          tone: 'warning',
-          summary: 'Progress is steady, but consistent leader sponsorship is needed to maintain momentum.',
-          rows: [
-            { label: 'Leader alignment', meta: 'Committed to change', target: '89%', actual: '80%', progress: 80 },
-            { label: 'Sponsorship cadence', meta: 'Sessions completed', target: '6 / 8', actual: '5', progress: 63 },
-            { label: 'Change narrative reach', meta: 'Audience readiness', target: '84%', actual: '77%', progress: 77 }
-          ]
-        },
-        {
-          title: 'Drive the change',
-          subtitle: 'ANZ change impacts and compliance readiness',
-          status: 'Monitor',
-          tone: 'warning',
-          summary: 'Key enablement activities are moving forward, but some mitigation actions still need to be confirmed.',
-          rows: [
-            { label: 'Change impacts', meta: 'Mitigations documented', target: '100%', actual: '98%', progress: 98 },
-            { label: 'Recruitment & onboarding', meta: 'GBS and COE completion', target: '>95%', actual: '90%', progress: 90 },
-            { label: 'Access controls', meta: 'Role-specific delivery', target: '100%', actual: '96%', progress: 96 }
-          ]
-        },
-        {
-          title: 'Be the change',
-          subtitle: 'People readiness measures for ANZ',
-          status: 'Monitor',
-          tone: 'warning',
-          fullWidth: true,
-          summary: 'Awareness and enablement metrics are stable, but training and compliance readiness are still warming up.',
-          rows: [
-            { label: 'Awareness of transformation objectives', meta: 'Sentiment survey', target: '90%', actual: '88%', progress: 88, tone: 'warning', status: 'Amber' },
-            { label: 'KT attendees passed assessment', meta: 'KT report', target: '90%', actual: '91%', progress: 91, tone: 'success', status: 'On track' },
-            { label: 'Work instructions / DTPs created', meta: 'KT report', target: '95%', actual: '94%', progress: 94, tone: 'warning', status: 'Amber' },
-            { label: 'Required training (WTS) completed', meta: 'WTS report', target: '85%', actual: '89%', progress: 89, tone: 'success', status: 'On track' },
-            { label: 'Training rated agree / strongly agree', meta: 'In-session polling', target: '80%', actual: '82%', progress: 82, tone: 'success', status: 'On track' }
-          ]
-        }
-      ]
-    };
-
-    const toneClass = {
-      success: 'badge-success dot-success',
-      warning: 'badge-warning dot-warning',
-      danger: 'badge-danger dot-danger',
-      brand: 'badge-brand dot-brand'
-    };
-
-    function getStatusPillClass(tone) {
-      if (tone === 'success') return 'status-pill success';
-      if (tone === 'warning') return 'status-pill warning';
-      if (tone === 'danger') return 'status-pill danger';
-      return 'status-pill';
-    }
-
-    function renderPercentageBar(value, tone) {
-      var percent = Number(value);
-      if (Number.isNaN(percent)) {
-        return '';
-      }
-      var barTone = tone || 'success';
-      return '<div class="status-bar"><div class="status-bar-fill ' + barTone + '" style="width:' + percent + '%"></div></div>';
-    }
-
-    function renderStatusCard(card) {
-      var rows = card.rows.map(function(row) {
-        var rowTone = row.tone || 'success';
-        return '<div class="status-card-row">'
-          + '<div>'
-            + '<div class="status-card-label">' + escapeHtml(row.label) + '</div>'
-            + '<div class="status-card-meta">' + escapeHtml(row.meta) + '</div>'
-          + '</div>'
-          + '<div class="status-card-values">'
-            + '<span class="status-card-target">Target: ' + escapeHtml(row.target) + '</span>'
-            + '<span class="status-card-actual">Actual: ' + escapeHtml(row.actual) + '</span>'
-            + '<span class="row-status-pill ' + escapeHtml(rowTone) + '">' + escapeHtml(row.status || '') + '</span>'
-          + '</div>'
-          + '</div>'
-          + renderPercentageBar(row.progress, rowTone);
-      }).join('');
-
-      return '<article class="status-card' + (card.fullWidth ? ' full-width' : '') + '">'
-        + '<div class="status-card-header">'
-          + '<div>'
-            + '<h3 class="status-card-title">' + escapeHtml(card.title) + '</h3>'
-            + '<p class="status-card-subtitle">' + escapeHtml(card.subtitle) + '</p>'
-            + '<p class="status-card-meta">' + escapeHtml(card.summary) + '</p>'
-          + '</div>'
-          + '<span class="' + getStatusPillClass(card.tone) + '">' + escapeHtml(card.status) + '</span>'
-        + '</div>'
-        + rows
-      + '</article>';
-    }
-
-    function renderDashboardCard(pageId) {
-      var cardRow = document.getElementById('dashboard-cards');
-      if (!cardRow) return;
-      var cards = topCardData[pageId] || topCardData['page-a'];
-      cardRow.innerHTML = cards.map(function(card) {
-        return renderStatusCard(card);
-      }).join('');
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function plusIcon() {
-      return '<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>';
-    }
-
-    function getTone(item) {
-      return toneClass[item.details.tone] || toneClass.brand;
-    }
-
-    function renderHeroTiles() {
-      // intentionally disabled: remove hero tiles (Area 01/02/03) from the top panel
-      const heroTiles = document.getElementById('hero-tiles');
-      if (heroTiles) heroTiles.innerHTML = '';
-    }
-
-    function renderDashboardCards() {
-      const grid = document.getElementById('dashboard-grid');
-
-      // Build HTML starting with the readiness scorecard as the first card
-      const readiness = dashboardItems.find(function(item) { return item.id === 'readiness-score'; });
-
-      let html = '';
-
-      if (readiness) {
-        html += '<article class="panel panel-small">'
-          + '<div class="panel-header">'
-            + '<div class="panel-title-wrap"><h2 class="panel-title">' + escapeHtml(readiness.title) + '</h2><span class="panel-category">' + escapeHtml(readiness.category) + '</span></div>'
-            + '<span class="badge badge-success"><span class="signal-dot dot-success"></span>' + escapeHtml(readiness.details.status) + '</span>'
-          + '</div>'
-          + '<div class="empty-state">'
-            + '<span class="empty-state-icon" aria-hidden="true">' + escapeHtml(readiness.details.icon) + '</span>'
-            + '<h3 class="empty-state-title">' + escapeHtml(readiness.details.emptyTitle) + '</h3>'
-            + '<p class="empty-state-copy">' + escapeHtml(readiness.description) + '</p>'
-            + '<button class="empty-state-action" type="button">' + plusIcon() + escapeHtml(readiness.details.cta) + '</button>'
-          + '</div>'
-        + '</article>';
-      }
-
-      // Render the rest of dashboard items (skip readiness-score)
-      html += dashboardItems
-        .filter(function(item) { return item.id !== 'readiness-score'; })
-        .map(function(item) {
-          const toneParts = getTone(item).split(' ');
-          const badgeClass = toneParts[0];
-          const dotClass = toneParts[1];
-          const panelClass = 'panel panel-' + item.details.layout;
-          const tags = item.tags.map(function(tag) {
-            return '<span class="tag">' + escapeHtml(tag) + '</span>';
-          }).join('');
-
-          return '<article class="' + panelClass + '">'
-            + '<div class="panel-header">'
-            + '<div class="panel-title-wrap"><span class="icon-chip" aria-hidden="true">' + escapeHtml(item.details.icon) + '</span><div><h2 class="panel-title">' + escapeHtml(item.title) + '</h2><span class="panel-category">' + escapeHtml(item.category) + '</span></div></div>'
-            + '<span class="badge ' + badgeClass + '"><span class="signal-dot ' + dotClass + '"></span>' + escapeHtml(item.details.status) + '</span>'
-            + '</div>'
-            + '<div class="empty-state">'
-            + '<span class="empty-state-icon" aria-hidden="true">' + escapeHtml(item.details.icon) + '</span>'
-            + '<h3 class="empty-state-title">' + escapeHtml(item.details.emptyTitle) + '</h3>'
-            + '<p class="empty-state-copy">' + escapeHtml(item.description) + '</p>'
-            + '<div class="tag-list" aria-label="Tags for ' + escapeHtml(item.title) + '">' + tags + '</div>'
-            + '<button class="empty-state-action" type="button">' + plusIcon() + escapeHtml(item.details.cta) + '</button>'
-            + '</div>'
-            + '</article>';
-        }).join('');
-
-      grid.innerHTML = html;
-    }
-
-    function renderDashboard() {
-      renderHeroTiles();
-      renderDashboardCards();
-    }
-
-    renderDashboard();
-    // STEP 1 - Read Portfolio.csv
-fetch("data/Portfolio.csv")
-    .then(response => response.text())
-    .then(data => {
-        console.log(data);
-    })
-    .catch(error => {
-        console.error("Error loading CSV:", error);
-    });
-  </script>
 </body>
 </html>
