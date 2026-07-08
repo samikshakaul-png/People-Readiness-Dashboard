@@ -73,14 +73,15 @@
     }
 
     .tab-btn {
-      padding: 0.45rem 0.2rem;
+      padding: 0.5rem 0.75rem;
       border: 0;
-      border-bottom: 4px solid transparent;
-      color: var(--color-text-muted);
+      border-bottom: 3px solid transparent;
       background: transparent;
-      font-size: 1.05rem;
+      color: #4a5367;
+      font-size: 1.1rem;
       font-weight: 800;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       cursor: pointer;
       transition: color 0.2s ease, border-color 0.2s ease;
     }
@@ -101,6 +102,14 @@
 
     .page-panel.active {
       display: block;
+    }
+
+    .page-panel:empty:not(.active) {
+      display: none !important;
+      padding: 0 !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      background: transparent !important;
     }
 
     .card-grid {
@@ -126,6 +135,7 @@
       width: 100%;
       max-width: 720px;
     }
+
 
     .dashboard-card-row > .status-card.full-width {
       grid-column: 1 / -1;
@@ -605,6 +615,31 @@
       line-height: 0.98;
       letter-spacing: 0;
     }
+    .hero-title {
+      max-width: 720px;
+      margin: var(--space-3) 0 0;
+      font-size: clamp(2.25rem, 5vw, 4.7rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-pretitle {
+      margin: 0;
+      color: inherit;
+      font-weight: 700;
+      /* 5px smaller than the hero-title which uses clamp */
+      font-size: calc(clamp(2.25rem, 5vw, 4.7rem) - 5px);
+      line-height: 1;
+      opacity: 0.95;
+    }
+
+    .hero-title {
+      max-width: 720px;
+      margin: var(--space-3) 0 0;
+      font-size: clamp(2.25rem, 5vw, 4.7rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
 
     .hero-subtext {
       max-width: 640px;
@@ -724,6 +759,28 @@
       font-weight: 700;
     }
 
+    .hero-card {
+      width: min(100%, var(--container-max));
+      margin: 0 auto var(--space-8);
+      padding: 0 var(--space-6);
+    }
+
+    .hero-card .panel {
+      padding: var(--space-5);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero-card-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: var(--radius-md);
+      margin-top: var(--space-5);
+      box-shadow: 0 14px 36px rgba(15, 86, 255, 0.08);
+    }
+
     .empty-state {
       display: grid;
       justify-items: center;
@@ -838,14 +895,17 @@
 <body>
   <div class="tab-shell">
     <nav class="tab-nav" aria-label="Primary tabs">
-      <button class="tab-btn active" type="button" data-page="page-a" onclick="showPage('page-a')">SOA</button>
+      <button class="tab-btn" type="button" data-page="page-f" onclick="showPage('page-f')">People Readiness Approach</button>
+      <button class="tab-btn" type="button" data-page="page-a" onclick="showPage('page-a')">SOA</button>
       <button class="tab-btn" type="button" data-page="page-b" onclick="showPage('page-b')">LATAM</button>
       <button class="tab-btn" type="button" data-page="page-c" onclick="showPage('page-c')">SEU</button>
       <button class="tab-btn" type="button" data-page="page-d" onclick="showPage('page-d')">WEU</button>
       <button class="tab-btn" type="button" data-page="page-e" onclick="showPage('page-e')">ANZ</button>
     </nav>
 
-    <div id="page-a" class="page-panel active">
+    <div id="page-f" class="page-panel"></div>
+
+    <div id="page-a" class="page-panel">
       <h2>Finance Transformation - SoA</h2>
       <div class="card-grid">
         <div class="scorecard">
@@ -956,11 +1016,21 @@
     <main class="page">
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-content">
-          <p class="eyebrow">Region readiness view</p>
-          <h1 class="hero-title" id="page-title">People Readiness Dashboard</h1>
-          <p class="hero-subtext">See where the business is ready, where support is needed, and which change activities need focus. Use this dashboard to frame readiness, stakeholder confidence, training, communications, and adoption signals.</p>
+          <p class="hero-subtext">Finance Transformation</p>
+          <h1 class="hero-title" id="page-title">People Readiness Approach</h1>
+          <p class="hero-subtext">Confidence at global programme level is built through upwards reporting of quantitative and qualitative evidence from the markets.</p>
         </div>
         <div class="hero-tiles" id="hero-tiles" aria-label="Key readiness areas"></div>
+      </section>
+
+      <section id="hero-card" class="hero-card" aria-label="People readiness approach illustration">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">People Readiness Approach</h2>
+            <span class="badge badge-brand">Illustration</span>
+          </div>
+          <img class="hero-card-image" src="attached-people-readiness-diagram.png" alt="People readiness approach diagram">
+        </div>
       </section>
 
       <section class="dashboard-card-row" id="dashboard-cards" aria-label="Summary status cards"></section>
@@ -991,11 +1061,21 @@
         currentTab.classList.add('active');
       }
 
+      var heroTitle = document.getElementById('page-title');
+      if (heroTitle) {
+        heroTitle.textContent = pageId === 'page-f' ? 'People Readiness Approach' : 'People Readiness Dashboard';
+      }
+
+      var heroCard = document.getElementById('hero-card');
+      if (heroCard) {
+        heroCard.style.display = pageId === 'page-f' ? 'block' : 'none';
+      }
+
       renderDashboardCard(pageId);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      showPage('page-a');
+      showPage('page-f');
     });
 
     const dashboardItems = [];
@@ -1005,8 +1085,8 @@
         {
           title: 'Lead the change',
           subtitle: 'Visible sponsorship, aligned leaders, and change activation readiness',
-          status: 'Monitor',
-          tone: 'warning',
+          status: 'On Track',
+          tone: 'success',
           summary: 'Leader alignment is strong, but sponsorship cadence and narrative reach need more energy.',
           rows: [
             { label: 'Leader alignment', meta: 'Committed to the change', target: '90%', actual: '86%', progress: 86, tone: 'success', status: 'On track' },
@@ -1017,7 +1097,7 @@
         {
           title: 'Drive the change',
           subtitle: 'Change impacts, onboarding and access controls are in place',
-          status: 'Needs attention',
+          status: 'At Risk',
           tone: 'danger',
           summary: 'Some completion metrics are strong, but access control work still needs closer attention.',
           rows: [
@@ -1263,11 +1343,20 @@
 
     function renderDashboardCard(pageId) {
       var cardRow = document.getElementById('dashboard-cards');
-      if (!cardRow) return;
+      var dashboardGrid = document.getElementById('dashboard-grid');
+      if (!cardRow || !dashboardGrid) return;
+
+      if (pageId === 'page-f') {
+        cardRow.innerHTML = '';
+        dashboardGrid.style.display = 'grid';
+        return;
+      }
+
       var cards = topCardData[pageId] || topCardData['page-a'];
       cardRow.innerHTML = cards.map(function(card) {
         return renderStatusCard(card);
       }).join('');
+      dashboardGrid.style.display = 'grid';
     }
 
     function escapeHtml(value) {
